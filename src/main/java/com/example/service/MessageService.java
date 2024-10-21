@@ -1,38 +1,52 @@
 package com.example.service;
 
 import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.example.entity.Message;
+import com.example.repository.MessageRepository;
 
+@Service
 public class MessageService {
 
+    @Autowired
+    MessageRepository mr;
+
     public Message createMessage(Message message) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createMessage'");
+        if (message.getMessageText().isBlank() || message.getMessageText().length() > 255){
+            message.setMessageId(-1);
+            return message;
+        }
+        return mr.save(message);
     }
 
     public List<Message> getAllMessages() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAllMessages'");
+        return mr.findAll();
     }
 
-    public List<Message> getMessageById(int id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getMessageById'");
+    public Message getMessageById(int id) {
+        Optional<Message> optionalMessage = mr.findById(id);
+        return optionalMessage.isPresent() ? optionalMessage.get() : new Message(id, "NULL",(long)0);
     }
 
-    public List<Message> deleteMessageById(int id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getMessageById'");
+    public void deleteMessageById(int id) {
+        mr.deleteById(id);
     }
 
-    public void updateMessageById(int id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateMessageById'");
+    public Integer updateMessageById(Message message) {
+        if (message.getMessageText().isBlank() || message.getMessageText().length() > 255){
+            return 400;
+        }
+        
+        mr.save(message);
+        return 200;
     }
 
     public List<Message> getMessagesByAccount(int accountId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getMessagesByAccount'");
+        return mr.findAllByPostedBy(accountId);
+
     }
 }
